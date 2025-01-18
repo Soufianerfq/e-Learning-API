@@ -1,7 +1,7 @@
 const data = {
   courses: require("../model/lessons.json"),
-  setCourses: function (data) {
-    this.courses = data;
+  setCourses: function (datas) {
+    this.courses = datas;
   },
 };
 
