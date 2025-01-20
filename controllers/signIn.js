@@ -37,13 +37,13 @@ const handleSignIn = async (req, res)=>{
 
         //saving refresh token with logged in user
         const otherUsers = usersDB.users.filter(person => person.username !== user.username)
-        const loggedinUser = {...user,refreshToken}
+        const loggedinUser = {...user, refreshToken}
         usersDB.setUser([...otherUsers, loggedinUser])
         await FSpromises.writeFile(
           path.join(__dirname, '..', 'model', 'users.json'),
           JSON.stringify(usersDB.users)
         )
-        res.cookie('jwt', refreshToken, {httpOnly: true, maxAge: 24*60*60*1000});
+        res.cookie('jwt', refreshToken, {httpOnly: true, sameSite: "None", secure: true, maxAge: 24 * 60 * 60 * 1000});
         res.json({accessToken}); //must be stored in memory (state)
 
       }else (res.status(401).json({"message": "incorrect password"}))

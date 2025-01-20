@@ -10,18 +10,18 @@ const path = require("path");
 const fsPromise = require("fs").promises;
 
 const handleNewUser = async (req, res) => {
-  const { userName, PWD } = req.body;
+  const { username, pwd } = req.body;
 
-  if (!userName || !PWD)
+  if (!username || !pwd)
     return res.status(400).json({ "message": "Username and password are required." });
 
-  const duplicate = usersDB.users.find((person) => person.username === userName);
+  const duplicate = usersDB.users.find((person) => person.username === username);
 
   if (duplicate) return res.status(409).json({ "message": "user already exists" });
   try {
-    const hashedPWD = await bcrypt.hash(PWD, 10);
+    const hashedPWD = await bcrypt.hash(pwd, 10);
     const newUser = {
-        username: userName,
+        username: username,
         passWord: hashedPWD
     }
     usersDB.setUser([...usersDB.users, newUser]);
