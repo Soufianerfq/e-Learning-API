@@ -1,12 +1,4 @@
-const usersDB = {
-    users: require("../model/users.json"),
-    setUser: function (datas) {
-      this.users = datas;
-    },
-};
-
-const FSPromises = require('fs').promises
-const path = require("path")
+const User = require("../model/Users")
 
 const handleLogout = async (req, res)=>{
     //message to FE: clear out access token from memory (state)
@@ -16,7 +8,7 @@ const handleLogout = async (req, res)=>{
 
 
     //check if the refresh token in the DB
-    const user = usersDB.users.find(person => person.refreshToken === refreshToken)
+    const user = await User.findOne({refreshToken: refreshToken}).exec();
     console.log(user)
     if (!user) {
         res.clearCookie('jwt', {httpOnly: true, maxAge: 24 * 60 * 60 * 1000})
@@ -24,13 +16,8 @@ const handleLogout = async (req, res)=>{
     }
 
     //update the DB, clear out the refresh token
-    const otherUsers = usersDB.users.filter(person => person.refreshToken !== user.refreshToken)
-    const loggedinUser = {...user, refreshToken: ''}
-    usersDB.setUser([...otherUsers, loggedinUser])
-    await FSPromises.writeFile(
-        path.join(__dirname, '..', 'model', 'users.json'),
-        JSON.stringify(usersDB.users)
-    )
+    user.refreshToken = "";
+    await user.save();
 
     res.clearCookie('jwt', {httpOnly: true, maxAge: 24 * 60 * 60 * 1000})
     res.sendStatus(204) //all is well but no content to send 
